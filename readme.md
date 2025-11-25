@@ -6,13 +6,13 @@
 
 | Имя ВМ | Центральный процессор (CPU) | Оперативная память (RAM) | Накопитель, Тип и объём | Операционная система (тип для VMware)                |
 | ------ | --------------------------- | ------------------------ | ----------------------- | ---------------------------------------------------- |
-| ISP    | 1 ядро / 1 поток            | 1024 МБ                  | SCSI, 30ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
+| ISP    | 1 ядро / 1 поток            | 1024 МБ                  | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
 | HQ-RTR | 1 ядро / 1 поток            | 4096 МБ                  | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                       |
 | BR-RTR | 1 ядро / 1 поток            | 4096 МБ                  | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                       |
-| HQ-SRV | 1 ядро / 1 поток            | 2048 МБ                  | SCSI, 30ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
-| BR-SRV | 1 ядро / 1 поток            | 2048 МБ                  | SCSI, 30ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
-| HQ-CLI | 1 ядро / 2 потока           | 2048 МБ                  | SCSI, 30ГБ              | Alt Workstation 11.1 (Other Linux 6.x kernel 64-bit) |
-| ИТОГО  | 7                           | ~ 13312 МБ               | ~ 126 ГБ                |                                                      |
+| HQ-SRV | 1 ядро / 1 поток            | 2048 МБ                  | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
+| BR-SRV | 1 ядро / 1 поток            | 2048 МБ                  | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
+| HQ-CLI | 1 ядро / 2 потока           | 2048 МБ                  | SCSI, 20ГБ              | Alt Workstation 11.1 (Other Linux 6.x kernel 64-bit) |
+| ИТОГО  | 7                           | ~ 13312 МБ               | ~ 111 ГБ                |                                                      |
 
 # Модуль 1
 ## 1. Произведите базовую настройку устройств
