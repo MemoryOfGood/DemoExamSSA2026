@@ -5,14 +5,14 @@
 Таблица 1
 
 | Имя ВМ | Центральный процессор (CPU) | Оперативная память (RAM) | Накопитель, Тип и объём | Операционная система (тип для VMware)                |
-| ------ | --------------------------- | ------------------------ | ----------------------- | ---------------------------------------------------- |
-| ISP    | 1 ядро / 1 поток            | 1024 МБ                  | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
-| HQ-RTR | 1 ядро / 1 поток            | 4096 МБ                  | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                       |
-| BR-RTR | 1 ядро / 1 поток            | 4096 МБ                  | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                       |
-| HQ-SRV | 1 ядро / 1 поток            | 2048 МБ                  | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
-| BR-SRV | 1 ядро / 1 поток            | 2048 МБ                  | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
-| HQ-CLI | 1 ядро / 2 потока           | 2048 МБ                  | SCSI, 20ГБ              | Alt Workstation 11.1 (Other Linux 6.x kernel 64-bit) |
-| ИТОГО  | 7                           | ~ 13312 МБ               | ~ 111 ГБ                |                                                      |
+| ------ | --------------------------- | ------------------------ | ----------------------- | -----------------------------------------------------|
+| ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
+| HQ-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                       |
+| BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                       |
+| HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
+| BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)        |
+| HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Starterkits Xfce (Other Linux 6.x kernel 64-bit) |
+| ИТОГО  | 7                           | ~ 14 ГБ (14336 МБ)       | ~ 116 ГБ                |                                                      |
 
 # Модуль 1
 ## 1. Произведите базовую настройку устройств
@@ -73,6 +73,16 @@ interface MGMT
 	ctrl+d
 ```
 
+Присоединяем интерфейс ISP к порту ge0
+```
+port ge0
+	service-instance ge0
+		encapsulation untagged
+		connect ip interface ISP
+		ctrl+d
+	ctrl+d
+```
+
 Cохраняем конфигурацию
 ```
 ctrl+z
@@ -95,18 +105,31 @@ config
 hostname BR-RTR.au-team.irpo
 ```
 
-Создаем интерфейсы который присоединим к портам позже
+Создаем интерфейсы и присоединяем к портам
 ```
 interface ISP  
 	ip nat outside
 	ip address 172.16.2.2/28
 	no shutdown
 	ctrl+d
+port ge0
+	service-instance ge0
+		encapsulation untagged
+			connect ip interface ISP
+			ctrl+d
+		ctrl+d
 interface LAN
 	ip nat inside
 	ip mtu 1500
 	ip address 192.168.3.1/28
 	no shutdown
+	ctrl+d
+port te0
+	mtu 9234
+	service-instance te0
+		encapsulation untagged
+		connect ip interface LAN
+		ctrl+d
 	ctrl+d
 ```
 
@@ -410,9 +433,12 @@ P@ssw0rd #Вводим его второй раз для подтвержден�
 
 В файле /etc/sudoers убираем комментарий у строчки WHEEL_USERS ALL=(ALL:ALL) NOPASSWD: ALL
 ```bash
-export EDITOR=nano
-visudo
-``` 
+nano /etc/sudoers
+```
+
+```
+WHEEL_USERS ALL=(ALL:ALL) NOPASSWD: ALL
+```
 Cохраняем файл (ctrl+x, y, enter)
 
 Добавляем пользователя sshuser в группу wheel:
