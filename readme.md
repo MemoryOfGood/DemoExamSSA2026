@@ -4,15 +4,15 @@
 
 Таблица 1
 
-| Имя ВМ | Центральный процессор<br>(CPU) | Оперативная память<br>(RAM) | Накопитель,<br>Тип и объём | Операционная система<br>(тип для VMware)           |
-| ------ | --------------------------- | ------------------------ | ----------------------- | ------------------------------------------------|
-| ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit)   |
-| HQ-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit)                  |
-| BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit)                  |
-| HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit)   |
-| BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit)   |
-| HQ-CLI | 1 ядро / 2 потока           | 2 ГБ (2048 МБ)           | SCSI, 20ГБ              | Alt Workstation<br>(Other Linux 6.x kernel 64-bit) |
-| ИТОГО  | 7                           | ~ 15 ГБ (15360 МБ)       | ~ 111 ГБ                |                                                 |
+| Имя ВМ | Центральный процессор<br>(CPU) | Оперативная память<br>(RAM) | Накопитель,<br>Тип и объём | Операционная система<br>(тип для VMware)|
+| ------ | --------------------------- | ------------------------ | ----------------------- | ------------------------------------------------ |
+| ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
+| HQ-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit) |
+| BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit) |
+| HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
+| BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
+| HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt p11 Starterkit xfce<br>(Other Linux 6.x kernel 64-bit) |
+| ИТОГО  | 7                           | ~ 14 ГБ (15360 МБ)       | ~ 115 ГБ                |                                                 |
 
 # Модуль 1
 ## 1. Произведите базовую настройку устройств
@@ -228,39 +228,11 @@ su -
 ```bash
 hostnamectl set-hostname HQ-CLI.au-team.irpo
 ```
-Создаём папку для под-адаптера
-```bash
-mkdir /etc/net/ifaces/ens33.200
+Создаём vlan200 для ens33 с помощью nmcli
 ```
-Создаём файл
-```bash
-nano /etc/net/ifaces/ens33.200/options
+nmcli connection add type vlan con-name ens33.200 ifname ens33.200 dev ens33 id 200
 ```
-Записываем в него конфигурацию
-```bash
-TYPE=vlan
-HOST=ens33
-VID=200
-BOOTPROTO=dhcp
-NM_CONTROLLED=no 
-DISABLED=no
-```
-Cохраняем (ctrl+x, y, enter)
 
-Перезапускаем службу отвечающую за сеть
-```bash
-systemctl restart network
-```
-Переходим в crontab 
-```bash
-export EDITOR=nano
-сrontab -e
-```
-Добавляем запись
-```bash
-@reboot /bin/systemctl restart network
-```
-Cохраняем (ctrl+x, y, enter)
 ### Таблица 2
 
 | Имя устройства   | IP-адрес        | Шлюз по умолчанию |
