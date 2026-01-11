@@ -4,14 +4,14 @@
 
 Таблица 1
 
-| Имя ВМ | Центральный процессор (CPU) | Оперативная память (RAM) | Накопитель, Тип и объём | Операционная система (тип для VMware)           |
+| Имя ВМ | Центральный процессор<br>(CPU) | Оперативная память<br>(RAM) | Накопитель,<br>Тип и объём | Операционная система<br>(тип для VMware)           |
 | ------ | --------------------------- | ------------------------ | ----------------------- | ------------------------------------------------|
-| ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)   |
-| HQ-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                  |
-| BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                  |
-| HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)   |
-| BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)   |
-| HQ-CLI | 1 ядро / 2 потока           | 2 ГБ (2048 МБ)           | SCSI, 20ГБ              | Alt Workstation (Other Linux 6.x kernel 64-bit) |
+| ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit)   |
+| HQ-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit)                  |
+| BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit)                  |
+| HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit)   |
+| BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit)   |
+| HQ-CLI | 1 ядро / 2 потока           | 2 ГБ (2048 МБ)           | SCSI, 20ГБ              | Alt Workstation<br>(Other Linux 6.x kernel 64-bit) |
 | ИТОГО  | 7                           | ~ 15 ГБ (15360 МБ)       | ~ 111 ГБ                |                                                 |
 
 # Модуль 1
