@@ -11,8 +11,8 @@
 | BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter (Debian 10.x 64-bit)                  |
 | HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)   |
 | BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11 (Other Linux 6.x kernel 64-bit)   |
-| HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Workstation (Other Linux 6.x kernel 64-bit) |
-| ИТОГО  | 7                           | ~ 15 ГБ (15360 МБ)       | ~ 116 ГБ                |                                                 |
+| HQ-CLI | 1 ядро / 2 потока           | 2 ГБ (2048 МБ)           | SCSI, 20ГБ              | Alt Workstation (Other Linux 6.x kernel 64-bit) |
+| ИТОГО  | 7                           | ~ 15 ГБ (15360 МБ)       | ~ 111 ГБ                |                                                 |
 
 # Модуль 1
 ## 1. Произведите базовую настройку устройств
@@ -1265,13 +1265,6 @@ systemctl status docker
 
 **Рисунок**
 
->[!WARNING]
-> В данном примере указывается папка для подключения ```ALTLinux```, взятый из [примера](https://www.altlinux.org/%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B_APT#%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D1%8F_%D0%BD%D0%B0_%D1%81%D0%BC%D0%B5%D0%BD%D0%BD%D0%BE%D0%BC_%D0%B4%D0%B8%D1%81%D0%BA%D0%B5), но можно использовать другую папку, если используется образ диска в качестве репозитория.
-
-Если не создана папка, то создаём её:
-```bash
-mkdir /media/ALTLinux
-```
 Монтируем подключаемый образ:
 ```bash
 mount /dev/cdrom /media/ALTLinux
@@ -1372,7 +1365,7 @@ docker compose up -d
 Устанавливаем необходимые пакеты для работы веб-сервиса (apache, mariadb и php)
 ```bash
 apt-get update
-apt-get install apache2 mariadb php8.2 apache2-mod_php8.2 php8.2-mysqli
+apt-get install lamp-server
 ```
 
 Добавляем службы в автозагрузку
@@ -1387,13 +1380,6 @@ systemctl enable --now mariadb
 
 **Рисунок**
 
->[!WARNING]
-> В данном примере указывается папка для подключения ```ALTLinux```, взятый из [примера](https://www.altlinux.org/%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B_APT#%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D1%8F_%D0%BD%D0%B0_%D1%81%D0%BC%D0%B5%D0%BD%D0%BD%D0%BE%D0%BC_%D0%B4%D0%B8%D1%81%D0%BA%D0%B5), но можно использовать другую папку, если используется образ диска в качестве репозитория.
-
-Если не создана папка, то создаём её:
-```bash
-mkdir /media/ALTLinux
-```
 Монтируем подключаемый образ:
 ```bash
 mount /dev/cdrom /media/ALTLinux
@@ -1407,73 +1393,15 @@ ls -lah /media/ALTLinux
 
 **Рисунок**
 
-Копируем содержимое папки web с диска в домашнюю директорию root:
+Копируем содержимое папки web с диска в директорию /var/www/html:
 ```bash
-cp -r /media/ALTLinux/web /root/web
+cp /media/web/index.php /var/www/html
+cp /media/web/logo.png /var/www/html
 ```
-Запускаем утилиту установки сервера MariaDB
+
+Редактируем файл index.php
 ```bash
-mysql_secure_installation
-```
-При запросе пароля от root mysql/mariadb нажимаем **Enter** (если он не был задан)
-Соглашаемся на unix аутентификацию (нажимая **y**)
-Соглашаемся на изменения пароля от рута mysql/mariadb (нажимая **y**) и изменяем пароль дважды вводя его (**P@ssw0rd**)
-
-<img width="609" height="385" alt="Pasted image 20251222205820" src="https://github.com/user-attachments/assets/d8adb357-d641-4d14-9f52-22453f1f2c93" />
-
-**Рисунок**
-
-Удаляем анонимного пользователя,
-запрещаем удалённое подключение через root,
-удаляем тестовую базу данных 
-и перезапускаем права для баз данных:
-
-<img width="578" height="295" alt="Pasted image 20251222210038" src="https://github.com/user-attachments/assets/eca54aab-693e-4dfa-bbcf-44324e8d5716" />
-
-**Рисунок**
-
-После выводится сообщение о том что завершена настройка mysql/mariadb
-
-<img width="542" height="70" alt="Pasted image 20251222210428" src="https://github.com/user-attachments/assets/1c02ac73-1fe0-4366-8cd0-fd9fca030b36" />
-
-**Рисунок**
-
-Заходим в консоль mariadb
-```bash
-mariadb
-```
-Создаем базу данных
-```SQL
-CREATE DATABASE webdb;
-```
-Выходим
-```SQL
-exit
-```
-Импортируем схему данных из файла dump.sql, из папки web
-```bash
-mariadb webdb < /root/web/dump.sql
-```
-Снова заходим в консоль РСУБД
-```bash
-mariadb
-```
-Создаём пользователя web
-```SQL
-CREATE USER 'web'@'%' IDENTIFIED BY 'P@ssw0rd';
-```
-Выдаём права доступа этому пользователю на базу данных web и применяем
-```SQL
-GRANT ALL PRIVILEGES ON webdb.* TO 'web'@'%';
-FLUSH PRIVILEGES;
-```
-Выходим из консоли РСУБД
-```SQL
-exit
-```
-  Редактируем файл index.php
-```bash
-nano web/index.php
+nano /var/www/html/index.php
 ```
 >[!NOTE]
 >nano может выводить сообщение, что файл только для чтения,
@@ -1486,29 +1414,59 @@ $username = "web"
 $password = "P@ssw0rd";
 $dbname = "webdb";
 ```
+
 <img width="713" height="108" alt="Pasted image 20251222212410" src="https://github.com/user-attachments/assets/70d9cce6-d791-40eb-9b13-fa4ef581ba06" />
 
 **Рисунок**
 
 Сохраняем и выходим из файла (ctrl+x, y, enter) 
 
-Переносим файлы index.php и logo.php в /var/www/html
+Запускаем и добавляем в автозагрузку mariadb
 ```bash
-mv web/index.php /var/www/html/
-mv web/logo.png /var/www/html/
+systemctl enable --now mariadb
 ```
-Удаляем стандартный файл index.html
+
+Заходим в консоль mariadb
 ```bash
-rm -f /var/www/html/index.html
+mariadb
 ```
-Включаем модуль, который позволит работать apache c PHP
+Создаем базу данных
+```SQL
+CREATE DATABASE webdb;
+```
+Создаём пользователя web
+```SQL
+CREATE USER web@localhost IDENTIFIED BY 'P@ssw0rd';
+```
+Выдаём права доступа этому пользователю на базу данных web и применяем
+```SQL
+GRANT ALL PRIVILEGES ON webdb.* TO web@localhost WITH GRANT OPTION;
+```
+Выходим из консоли mariadb
+```SQL
+exit
+```
+Импортируем схему данных из файла dump.sql, из папки web
 ```bash
-a2enmod mod_php8.2
+mariadb -u web -pP@ssw0rd webdb < /media/web/dump.sql
 ```
-Перезапускаем apache
+Снова заходим в консоль mariadb
 ```bash
-systemctl restart httpd2
+mariadb webdb
 ```
+Выводим таблицы для проверки импорта
+```SQL
+SHOW TABLES;
+```
+Выходим из консоли mariadb
+```SQL
+exit
+```
+Запускаем и добавляем в автозагрузку apache2
+```bash
+systemctl enable --now httpd2
+```
+
 ### HQ-CLI
 Заходим в Chromium и вводим адрес
 ```http
@@ -1559,6 +1517,8 @@ http {
 	server {
 	    listen 172.16.1.1:80;
 	    server_name web.au-team.irpo;
+		#auth_basic "Web-authentication";
+	    #auth_basic_user_file /etc/nginx/.htpasswd;
 	    location / {
 	        proxy_pass http://172.16.1.2:8080;
 	        proxy_set_header Host $host;
