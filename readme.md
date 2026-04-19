@@ -418,7 +418,7 @@ ip/dhcp-server/add name=dhcp-server interface=vlan200 address-pool=hq-pool
 ```
 Указываем параметры для DHCP-сервера
 ```
-ip/dhcp-server/network/add address=192.168.2.1/28 gateway=192.168.2.0 netmask=28 dns-server=192.168.1.30 domain="au-team.irpo"
+ip/dhcp-server/network/add address=192.168.2.0/28 gateway=192.168.2.1 netmask=28 dns-server=192.168.1.30 domain="au-team.irpo"
 ```
 
 ### HQ-CLI
