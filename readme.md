@@ -780,7 +780,8 @@ echo '/dev/md0 /raid ext4 defaults,nofail,discard 0 0' | tee -a /etc/fstab
 * Основные параметры сервера отметьте в отчёте
 
 ### HQ-RTR
->[!WARNING]Выполняем проброс портов чтобы можно было подключиться по nfs к HQ-SRV
+>[!WARNING]
+>Выполняем проброс портов чтобы можно было подключиться по nfs к HQ-SRV
 ```
 ip/firewall/nat/add chain=dstnat action=dst-nat protocol=tcp port=2049 to-ports=2049
 ip/firewall/nat/add chain=dstnat action=dst-nat protocol=udp port=2049 to-ports=2049
@@ -952,8 +953,6 @@ timedatectl timesync-status
 * Рабочий каталог ansible должен располагаться в /etc/ansible 
 * Все указанные машины должны без предупреждений и ошибок отвечать pong на команду ping в ansible посланную с BR-SRV.
 
->[!WARNING]
-> Не во всех редакция/версиях EcoRouter есть ssh-сервер (как например в данном примере), по этому не указываем роутеры HQ-RTR и BR-RTR в файле инвентаря 
 ### HQ-CLI
 Перед началом установим проверяем наличие ssh-сервера 
 ```bash
