@@ -965,6 +965,11 @@ timedatectl timesync-status
 * Рабочий каталог ansible должен располагаться в /etc/ansible 
 * Все указанные машины должны без предупреждений и ошибок отвечать pong на команду ping в ansible посланную с BR-SRV.
 
+### HQ-RTR и BR-RTR
+Перед началом запускаем ssh-сервер 
+```
+/ip service enable ssh
+```
 ### HQ-CLI
 Перед началом установим проверяем наличие ssh-сервера 
 ```bash
