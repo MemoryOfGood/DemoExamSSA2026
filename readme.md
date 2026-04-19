@@ -898,7 +898,13 @@ ip/firewall/filter/add action=accept chain=input protocol=udp port=123
 ```
 system/ntp/client/servers/add address=172.16.1.1
 system/ntp/client/edit enabled
+```
+Прописываем в файле
+```
 yes
+```
+Сохраняем
+```
 ctrl+o
 ```
 
@@ -910,7 +916,13 @@ ip/firewall/filter/add action=accept chain=input protocol=udp port=123
 ```
 system/ntp/client/servers/add address=172.16.2.1
 system/ntp/client/edit enabled
+```
+Прописываем в файле
+```
 yes
+```
+Сохраняем
+```
 ctrl+o
 ```
 ### HQ-CLI и HQ-SRV
