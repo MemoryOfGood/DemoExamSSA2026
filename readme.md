@@ -428,6 +428,11 @@ ip/dhcp-server/network/add address=192.168.2.0/28 gateway=192.168.2.1 netmask=28
 su -
 ```
 
+Добавляем подинтерфейc vlan200
+```
+nmcli connection add type vlan con-name ens33.200 ifname ens33.200 dev ens33 id 200
+```
+
 Выполняем запуск dhcp-клиента
 ```bash
 dhcpcd
