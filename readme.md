@@ -312,7 +312,7 @@ usermod -aG wheel sshuser
 * Сведения о настройке коммутации внесите в отчёт
 
 ```
-ip/address/add address=192.168.1.2/27 network=192.168.1.0 interface=vlan100
+ip/address/add address=192.168.1.1/27 network=192.168.1.0 interface=vlan100
 ip/address/add address=192.168.2.1/28 network=192.168.2.0 interface=vlan200
 ip/address/add address=192.168.99.1/29 network=192.168.99.0 interface=vlan999
 ```
