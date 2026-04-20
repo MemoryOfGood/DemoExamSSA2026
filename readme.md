@@ -1283,7 +1283,7 @@ systemctl enable --now httpd2
 ### HQ-RTR
 ```
 ip/firewall/nat/add chain=dstnat dst-address=172.16.1.2 protocol=tcp port=2026 action=dst-nat to-addresses=192.168.1.30 to-ports=2026
-ip/firewall/nat/add chain=dstnat dst-address=172.16.1.2 protocol=tcp port=80 action=dst-nat to-addresses=192.168.1.30 to-ports=8080
+ip/firewall/nat/add chain=dstnat dst-address=172.16.1.2 protocol=tcp port=8080 action=dst-nat to-addresses=192.168.1.30 to-ports=80
 ```
 
 ### BR-RTR
