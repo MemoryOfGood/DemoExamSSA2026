@@ -325,9 +325,14 @@ ip/address/add address=192.168.99.1/29 network=192.168.99.0 interface=vlan999
 
 Перед началом убедимся, что пакет openssh-sever установлен
 ```bash
-apt-get update
-apt-get install openssh-server
+apt-cache policy openssh-server
 ```
+> [!NOTE]
+>Если не установлен, то вернитесь после 10 задания 1 модуля, установите пакет и продолжите настройку 
+>```bash
+>apt-get update
+>apt-get install openssh-server
+>```
 
 Редактируем /etc/openssh/sshd_config
 ```bash
