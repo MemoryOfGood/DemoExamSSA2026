@@ -277,7 +277,7 @@ systemctl enable --now iptables
 
 ### HQ-RTR и BR-RTR 
 ```
-/user/add name=net_admin group=full password="P@$$word"
+/user/add name=net_admin group=full password="P@ssword"
 ```
 ### HQ-SRV и BR-SRV
 ```bash
