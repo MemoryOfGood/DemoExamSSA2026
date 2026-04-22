@@ -1,5 +1,4 @@
-<img width="463" height="593" alt="Снимок экрана 2025-11-24 130720" src="https://github.com/user-attachments/assets/8740b3f1-048e-48d5-a7bf-252bf3cf63d9" />
-
+<img width="682" height="655" alt="Дэмо" src="https://github.com/user-attachments/assets/d2d81999-fb6d-42a3-bf05-70060b3137c6" />
 **Рисунок 1**
 
 Таблица 1
@@ -646,6 +645,9 @@ samba-tool domain provision
 ```
 
 При запросе ввода нажимайте **Enter** за исключением запроса пароля администратора («Administrator password:» и «Retype password:»).
+>[!TIP]
+> Лучше исползовать стандартный пароль, который был указан ранее в задании
+> ```P@ssw0rd```
 
 У Samba есть свой собственный DNS-сервер. В DNS forwarder IP address нужно проверить что указывается/указать DNS-сервер HQ-SRV (192.168.1.30), чтобы DC мог разрешать внешние доменные имена.
 
@@ -731,19 +733,22 @@ acc
 ставим галочку у **восстановить файлы…**
 После нажимаем кнопку **Применить**:
 
-![[Pasted image 20251217140619.png]]
+<img width="835" height="549" alt="Снимок экрана 2025-12-17 140616" src="https://github.com/user-attachments/assets/25214522-4242-4ad9-87ff-6715ab0e4507" />
+
 **Рисунок** 
 
 Соглашаемся на восстановление файлов конфигурации по умолчанию
-![[Pasted image 20251217140746.png]]
+<img width="422" height="171" alt="Снимок экрана 2025-12-17 140713" src="https://github.com/user-attachments/assets/3984cb32-8cf4-4bcc-ba24-e83309850dde" />
 **Рисунок**
 
 Вводим пароль администратора, который ввели при создания домена (P@ssw0rd) и нажимаем кнопку **ОК**:
-![[Pasted image 20251217141119.png]]
+<img width="476" height="286" alt="Снимок экрана 2025-12-17 141118" src="https://github.com/user-attachments/assets/1584875d-c8c7-4e77-b881-e8785e023c44" />
+
 **Рисунок** 
 
 При успешном вводе в домен выведется информация:
-![[Pasted image 20251217141158.png]]
+<img width="236" height="151" alt="Снимок экрана 2025-12-17 141156" src="https://github.com/user-attachments/assets/b5dfea0a-1508-4f0b-85da-8cfb27fe94a6" />
+
 **Рисунок** 
 
 Перезагружаем систему командой ```reboot``` или через графический интерфейс
@@ -756,13 +761,17 @@ acc
 Перед начало выключаем ВМ и добавляем 2 виртуальных жестких дисках по 1 ГБ в VmWare Workstation для HQ-SRV  
 Переходим **Edit virtual machine settings** > **Add..** > **Hard Disk**
 
-![[Pasted image 20251124174527.png]]
+<img width="378" height="332" alt="Снимок экрана 2025-11-10 080737" src="https://github.com/user-attachments/assets/6d1a8020-f0dd-43bf-82de-4d9b2be3d17c" />
+
 **Рисунок** 
 
 Просматриваем имеющийся диски и запоминаем их имена
 ```bash
 lsblk
 ```
+<img width="518" height="537" alt="изображение" src="https://github.com/user-attachments/assets/aa88603f-40f9-47f0-8a03-6f23989d4640" />
+
+**Рисунок** 
 
 Создаём raid-массив и форматируем его в файловой системе ext4
 ```bash
@@ -780,6 +789,9 @@ mount /dev/md0 /raid
 ```bash
 df -h
 ```
+<img width="643" height="180" alt="Снимок экрана 2025-11-10 085400" src="https://github.com/user-attachments/assets/c73a0b06-c9af-4432-913a-2de91099a4b5" />
+
+**Рисунок**
 
 Считываем характеристики массива и записываем в файл /etc/mdadm/mdadm.conf, чтобы массив автоматически подключался после перезагрузки
 ```bash
@@ -821,13 +833,15 @@ echo '/raid/nfs 192.168.2.0/28(rw,sync,no_subtree_check)' | tee -a /etc/exports
 exportfs -rav
 exportfs -v
 ```
+<img width="829" height="100" alt="Снимок экрана 2025-11-10 091311" src="https://github.com/user-attachments/assets/d4921e15-552b-4473-8b0d-80b32f4c1c78" />
+
+**Рисунок**
 
 Включаем и перезапускаем службу NFS:
 ```bash
 systemctl enable --now nfs
 systemctl restart nfs
 ```
-
 ### HQ-CLI
 
 Обновляем список репозиториев и скачиваем пакет nfs-clients
@@ -850,6 +864,9 @@ echo 'HQ-SRV:/raid/nfs /mnt/nfs nfs intr,soft,_netdev,x-systemd.automount 0 0' |
 mount -a
 df -h
 ```
+<img width="905" height="282" alt="Снимок экрана 2025-11-10 094047" src="https://github.com/user-attachments/assets/050f40dc-9b11-4bed-808a-5f01280ad6da" />
+
+**Рисунок**
 
 ## 4.  Настройте службу сетевого времени на базе сервиса chrony на маршрутизаторе ISP
 * Вышестоящий сервер ntp на маршрутизаторе ISP - на выбор участника 
