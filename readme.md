@@ -1192,7 +1192,6 @@ db:
 
 volumes:
  db_data:
-  external: true
 ```
 Сохраняем и выходим из файла (crtl+x, y, enter)
 
@@ -1457,7 +1456,6 @@ http://web.au-team.irpo
 
 Устанавливаем Яндекс Браузер
 ```bash
-apt-get update
 apt-get install yandex-browser-stable
 ```
 
