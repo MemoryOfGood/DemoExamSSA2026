@@ -776,7 +776,7 @@ acc
 ```bash
 lsblk
 ```
-<img width="518" height="537" alt="изображение" src="https://github.com/user-attachments/assets/aa88603f-40f9-47f0-8a03-6f23989d4640" />
+<img width="358" height="129" alt="Снимок экрана 2025-11-10 081300" src="https://github.com/user-attachments/assets/bcf2a1d5-dbb4-4db4-869d-06779726a893" />
 
 **Рисунок** 
 
@@ -1176,7 +1176,8 @@ db:
     - db_data:/var/lib/mysql
 
 volumes:
-  db_data:
+ db_data:
+  external: true
 ```
 Сохраняем и выходим из файла (crtl+x, y, enter)
 
@@ -1247,8 +1248,8 @@ ls -lah /media/ALTLinux
 
 Копируем содержимое папки web с диска в директорию /var/www/html:
 ```bash
-cp /media/web/index.php /var/www/html
-cp /media/web/logo.png /var/www/html
+cp /media/ALTLinux/web/index.php /var/www/html
+cp /media/ALTLinux/web/logo.png /var/www/html
 ```
 
 Редактируем файл index.php
@@ -1300,7 +1301,7 @@ exit
 ```
 Импортируем схему данных из файла dump.sql, из папки web
 ```bash
-mariadb -u web -pP@ssw0rd webdb < /media/web/dump.sql
+mariadb -u web -pP@ssw0rd webdb < /media/ALTLinux/web/dump.sql
 ```
 Снова заходим в консоль mariadb
 ```bash
