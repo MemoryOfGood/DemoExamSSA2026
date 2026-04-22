@@ -1354,6 +1354,9 @@ nano /etc/nginx/nginx.conf
 ```
 Вносим свою конфигурацию
 ```bash
+events { 
+	worker_connections 1024;
+}
 http {
 	server {
 	    listen 172.16.1.1:80;
@@ -1408,7 +1411,7 @@ docker.au-team.irpo
 ### ISP
 Устанавливаем пакет  
 ```bash
-apt install apache-utils
+apt install apache2
 ```
 Создаём пользователя для аутентификации с командой htpasswd и вводим дважды пароль **P@ssw0rd**
 ```bash
