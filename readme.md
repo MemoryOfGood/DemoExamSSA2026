@@ -375,12 +375,19 @@ systemctl restart sshd
 interface/gre/add name=HQ-BR local-address=172.16.1.2 remote-address=172.16.2.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
 ip/address/add address=10.10.10.1/30 network=10.10.10.0 interface=HQ-BR
 ```
+Для отчёта
+```
+interface/gre/print
+```
 ### BR-RTR
 ```
 interface/gre/add name=BR-HQ local-address=172.16.2.2 remote-address=172.16.1.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
 ip/address/add address=10.10.10.2/30 network=10.10.10.0 interface=BR-HQ
 ```
-
+Для отчёта
+```
+interface/gre/print
+```
 
 ## 7. Обеспечьте динамическую маршрутизацию на маршрутизаторах HQ-RTR и BR-RTR
 * Сети одного офиса должны быть доступны из другого офиса и наоборот. Для обеспечения динамической маршрутизации используйте link state протокол на усмотрение участника
@@ -428,22 +435,14 @@ ip/dhcp-server/network/add address=192.168.2.0/28 gateway=192.168.2.1 netmask=28
 ```
 
 ### HQ-CLI
-
 Переходим в суперпользователя в терминале
 ```bash
 su -
 ```
-
-Добавляем подинтерфейc vlan200
-```
-nmcli connection add type vlan con-name ens33.200 ifname ens33.200 dev ens33 id 200
-```
-
 Выполняем запуск dhcp-клиента
 ```bash
 dhcpcd
 ```
-
 Выводим адреса для проверки
 ```bash
 ip -c a
@@ -842,6 +841,7 @@ exportfs -v
 <img width="829" height="100" alt="Снимок экрана 2025-11-10 091311" src="https://github.com/user-attachments/assets/d4921e15-552b-4473-8b0d-80b32f4c1c78" />
 
 **Рисунок**
+
 
 Включаем и перезапускаем службу NFS:
 ```bash
