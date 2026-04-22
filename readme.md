@@ -14,6 +14,29 @@
 | HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Alt p11 Starterkit xfce<br>(Other Linux 6.x kernel 64-bit) |
 | ИТОГО  | 7                           | ~ 8 ГБ (8192 МБ)       | ~ 101 ГБ                |                                                 |
 
+# Подготовка
+> [!WARNING]
+> Так как скорость интернета и скачивания с сервера из Московского репозитория медленная, для того чтобы установить неоторые следует использовать диск в качестве репозитория
+
+### ISP, HQ-SRV, BR-SRV, HQ-CLI
+> [!WARNING]
+> Для HQ-CLI сперва нужно перейти в суперпользователя
+> ```
+> su -
+> ```
+Создаём каталог для подключения образа
+```
+mkdir /media/ALTLinux
+```
+Монтируем образ
+```
+mount /dev/sr0 /media/ALTLinux
+```
+Добавляем образ в список репозиториев
+```
+apt-cdrom -m add
+```
+
 # Модуль 1
 ## 1. Произведите базовую настройку устройств
 * Настройте имена устройств согласно топологии. Используйте полное доменное имя 
@@ -482,7 +505,6 @@ apt-cache policy dnsmasq
 > [!NOTE]
 > Если не установлен, устанавливаем пакет dnsmasq
 >```bash
-> apt-get update
 > apt-get install dnsmasq
 >```
 
@@ -562,14 +584,6 @@ echo domain au-team.irpo | tee -a /etc/net/ifaces/ens33/resolv.conf
 systemctl restart network
 ```
 Сохраняем и выходим из файла (ctrl+x, y enter)
-
-
-### ISP, HQ-CLI и BR-SRV
-> [!Warning]
-> Выполните обновление репозиториев один раз после этого пункта, чтобы позже не обновлять их
-> ```
-> apt-get update
-> ```
 
 ## 11. Настройте часовой пояс на всех устройствах 
 * за исключением виртуального коммутатора, в случае его использования
@@ -1092,16 +1106,16 @@ ansible all -m ping
 * Приложение должно быть доступно для внешних подключений через порт 8080
 ### BR-SRV
 
-Обновляем репозитории и устанавливаем docker-compose-v2
+Обновляем репозитории и устанавливаем docker-compose
 ```bash
-apt-get update
-apt-get install docker-engine docker-compose-v2
+apt-get install docker-engine docker-compose
 ```
 Добавляем в автозагрузку и смотрим статус docker:
 ```bash
 systemctl enable -–now docker
 systemctl status docker
 ```
+Выключаем ВМ
 
 Подключаем [образ](https://disk.yandex.ru/d/0MGlkrp2B9nXDw) в VmWare workstation
 
@@ -1109,14 +1123,11 @@ systemctl status docker
 
 **Рисунок**
 
-Создаём папку для подключения
-```
-mkdir /media/ALTLinux
-```
+Включаем ВМ
 
 Монтируем подключаемый образ:
 ```bash
-mount /dev/cdrom /media/ALTLinux
+mount /dev/sr0 /media/ALTLinux
 ```
 Просматриваем содержимое:
 ```bash
@@ -1214,6 +1225,7 @@ docker compose up -d
 ### HQ-SRV
 Устанавливаем необходимые пакеты для работы веб-сервиса (apache, mariadb и php)
 ```bash
+apt-get update
 apt-get install lamp-server
 ```
 
@@ -1223,19 +1235,19 @@ systemctl enable --now httpd2
 systemctl enable --now mariadb
 ```
 
+Выключаем ВМ
+
 Подключаем [образ](https://disk.yandex.ru/d/0MGlkrp2B9nXDw) в VmWare workstation
 
 <img width="702" height="414" alt="Pasted image 20251222113428" src="https://github.com/user-attachments/assets/30fca107-94eb-48f2-a443-00438defebc1" />
 
 **Рисунок**
 
-Создаём папку для подключения
-```
-mkdir /media/ALTLinux
-```
+Включаем ВМ
+
 Монтируем подключаемый образ:
 ```bash
-mount /dev/cdrom /media/ALTLinux
+mount /dev/sr0 /media/ALTLinux
 ```
 Просматриваем содержимое:
 ```bash
@@ -1394,7 +1406,7 @@ systemctl enable --now nginx
 
 Первая вкладка
 ```http
-web.au-team.irpo
+http://web.au-team.irpo
 ```
 
 Вторая вкладка
@@ -1433,7 +1445,7 @@ systemctl restart nginx
 ### HQ-CLI 
 Заходим в Chromium и вводим адрес
 ```http
-web.au-team.irpo
+http://web.au-team.irpo
 ```
 
 ## 11. Удобным способом установите приложение Яндекс Браузер на HQ-CLI 
@@ -1441,6 +1453,7 @@ web.au-team.irpo
 
 Устанавливаем Яндекс Браузер
 ```bash
+apt-get update
 apt-get install yandex-browser-stable
 ```
 
