@@ -277,7 +277,7 @@ systemctl enable --now iptables
 
 ### HQ-RTR и BR-RTR 
 ```
-/user/add name=net_admin group=full password="P@ssword"
+/user/add name=net_admin group=full password="P@ssw0rd"
 ```
 ### HQ-SRV и BR-SRV
 ```bash
@@ -373,13 +373,13 @@ systemctl restart sshd
 
 ### HQ-RTR
 ```
-interface/gre/add name=HQ-BR local-address=172.16.1.2 remote-address=172.16.2.2 allow-fast-path=no ipsec-secret="P@$$w0rd"
+interface/gre/add name=HQ-BR local-address=172.16.1.2 remote-address=172.16.2.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
 ip/address/add address=10.10.10.1/30 network=10.10.10.0 interface=HQ-BR
 
 ```
 ### BR-RTR
 ```
-interface/gre/add name=BR-HQ local-address=172.16.2.2 remote-address=172.16.1.2 allow-fast-path=no ipsec-secret="P@$$w0rd"
+interface/gre/add name=BR-HQ local-address=172.16.2.2 remote-address=172.16.1.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
 ip/address/add address=10.10.10.2/30 network=10.10.10.0 interface=BR-HQ
 ```
 
