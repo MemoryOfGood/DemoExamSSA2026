@@ -330,7 +330,6 @@ apt-cache policy openssh-server
 > [!NOTE]
 >Если не установлен, то вернитесь после 10 задания 1 модуля, установите пакет и продолжите настройку 
 >```bash
->apt-get update
 >apt-get install openssh-server
 >```
 
@@ -484,7 +483,7 @@ apt-cache policy dnsmasq
 ```
 
 > [!NOTE]
-> Если не установлен, обновляем список репозиториев и устанавливаем пакет dnsmasq
+> Если не установлен, устанавливаем пакет dnsmasq
 >```bash
 > apt-get update
 > apt-get install dnsmasq
@@ -495,6 +494,9 @@ apt-cache policy dnsmasq
 nano /etc/dnsmasq.conf
 ```
 
+>[!Warning]
+> Перед редактирование проверьте ip-адрес HQ-CLI
+
 И добавляем в неё строки (для удобства прям с первой строки файла):
 ```bash
 no-resolv
@@ -502,9 +504,6 @@ domain=au-team.irpo
 #server=/au-team.irpo/192.168.3.14
 server=77.88.8.8
 interface=*
-
->[!Warning]
-> Проверть ip-адрес HQ-CLI
 
 #HQ-RTR                                     
 address=/hq-rtr.au-team.irpo/192.168.1.1
@@ -569,6 +568,14 @@ systemctl restart network
 ```
 Сохраняем и выходим из файла (ctrl+x, y enter)
 
+
+### HQ-CLI и BR-SRV
+> [!Warning]
+> Выполните обновление репозиториев один раз после этого пункта, чтобы позже не обновлять их
+> ```
+> apt-get update
+> ```
+
 ## 11. Настройте часовой пояс на всех устройствах 
 * за исключением виртуального коммутатора, в случае его использования
 * согласно месту проведения экзамена
@@ -582,9 +589,8 @@ system/clock/set time-zone-name=Asia/Irkutsk
 ```bash
 systemctl disable --now chronyd
 ```
-Обновляем список пакетов и скачиваем службу systemd-timesyncd:
+Cкачиваем службу systemd-timesyncd:
 ```bash
-apt-get update
 apt-get install systemd-timesyncd
 ```
 Теперь включим службу systemd-timesyncd и посмотрим её статус работы:
@@ -620,7 +626,6 @@ systemctl restart dnsmasq
 ### BR-SRV
 Для Samba DC (на базе Heimdal Kerberos) необходимо установить компонент samba-dc:
 ```bash
-apt-get update
 apt-get install task-samba-dc
 ```
 
@@ -718,7 +723,6 @@ samba-tool group addmembers hq user1.hq,user2.hq,user3.hq,user4.hq,user5.hq
 
 Устанавливаем пакет, отвечающий за подключение в домен task-auth-ad-sssd:
 ```bash
-apt-get update
 apt-get install task-auth-ad-sssd
 ```
 
@@ -818,7 +822,6 @@ ip/firewall/nat/add chain=dstnat action=dst-nat protocol=udp port=2049 to-ports=
 ### HQ-SRV
 Обновляем список репозиториев и скачиваем пакет nfs-server
 ```bash
-apt-get update
 apt-get install nfs-server
 ```
 
@@ -849,7 +852,6 @@ systemctl restart nfs
 
 Обновляем список репозиториев и скачиваем пакет nfs-clients
 ```bash
-apt-get update
 apt-get install nfs-clients
 ```
 
@@ -1013,27 +1015,18 @@ systemctl status sshd
 >[!NOTE]
 >Если отсутствует, то устанавливаем
 >```bash
-> apt-get update
 > apt-get install openssh-server
 >```
 
 >[!Note]
->Если не включен inactive (dead), то включаем
+>Если не включен ```inactive (dead)```, то включаем
 >```
 > systemctl enable --now sshd
 >```
 
-### HQ-CLI и HQ-SRV
-Устанавливаем пакет
-```
-apt-get install python3
-```
-
-
 ### BR-SRV
 Обновляем лист с репозиториями и устанавливаем пакет ansible
 ```bash
-apt-get update
 apt-get install ansible
 ```
 
@@ -1101,7 +1094,6 @@ ansible all -m ping
 
 Обновляем репозитории и устанавливаем docker-compose-v2
 ```bash
-apt-get update
 apt-get install docker-engine docker-compose-v2
 ```
 Добавляем в автозагрузку и смотрим статус docker:
@@ -1220,7 +1212,6 @@ docker compose up -d
 ### HQ-SRV
 Устанавливаем необходимые пакеты для работы веб-сервиса (apache, mariadb и php)
 ```bash
-apt-get update
 apt-get install lamp-server
 ```
 
@@ -1445,7 +1436,6 @@ web.au-team.irpo
 
 Устанавливаем Яндекс Браузер
 ```bash
-apt-get update
 apt-get install yandex-browser-stable
 ```
 
