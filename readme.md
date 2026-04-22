@@ -1411,7 +1411,7 @@ http://web.au-team.irpo
 
 Вторая вкладка
 ```http
-docker.au-team.irpo
+http://docker.au-team.irpo
 ```
 
 ## 10. На маршрутизаторе ISP настройте web-based аутентификацию:
