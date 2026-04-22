@@ -568,7 +568,7 @@ systemctl restart network
 Сохраняем и выходим из файла (ctrl+x, y enter)
 
 
-### HQ-CLI и BR-SRV
+### ISP, HQ-CLI и BR-SRV
 > [!Warning]
 > Выполните обновление репозиториев один раз после этого пункта, чтобы позже не обновлять их
 > ```
@@ -819,7 +819,7 @@ ip/firewall/nat/add chain=dstnat action=dst-nat protocol=udp port=2049 to-ports=
 ```
 
 ### HQ-SRV
-Обновляем список репозиториев и скачиваем пакет nfs-server
+Cкачиваем пакет nfs-server
 ```bash
 apt-get install nfs-server
 ```
@@ -850,7 +850,7 @@ systemctl restart nfs
 ```
 ### HQ-CLI
 
-Обновляем список репозиториев и скачиваем пакет nfs-clients
+Cкачиваем пакет nfs-clients
 ```bash
 apt-get install nfs-clients
 ```
@@ -879,10 +879,9 @@ df -h
 * В качестве клиентов ntp настройте: HQ-SRV, HQ-CLI, BR-RTR, BR-SRV
 
 ### ISP
-Обновляем списки репозиториев и устанавливаем пакет chrony
+Eстанавливаем пакет chrony
 
 ```bash
-apt-get update
 apt-get install chrony
 ```
 
@@ -1025,7 +1024,7 @@ systemctl status sshd
 >```
 
 ### BR-SRV
-Обновляем лист с репозиториями и устанавливаем пакет ansible
+Устанавливаем пакет ansible
 ```bash
 apt-get install ansible
 ```
@@ -1094,6 +1093,7 @@ ansible all -m ping
 
 Обновляем репозитории и устанавливаем docker-compose-v2
 ```bash
+apt-get update
 apt-get install docker-engine docker-compose-v2
 ```
 Добавляем в автозагрузку и смотрим статус docker:
