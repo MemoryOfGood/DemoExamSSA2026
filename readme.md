@@ -32,6 +32,10 @@ mkdir /media/ALTLinux
 ```
 mount /dev/sr0 /media/ALTLinux
 ```
+Добавляем образ в автозагрузку
+```
+echo '/dev/sr0  /media/ALTLinux  udf,iso9660  user,noauto  0  0' | tee -a /etc/fstab
+```
 Добавляем образ в список репозиториев
 ```
 apt-cdrom -m add
