@@ -7,8 +7,8 @@
 | Имя ВМ | Центральный процессор<br>(CPU) | Оперативная память<br>(RAM) | Накопитель,<br>Тип и объём | Операционная система<br>(тип для VMware)|
 | ------ | --------------------------- | ------------------------ | ----------------------- | ------------------------------------------------ |
 | ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
-| HQ-RTR | 1 ядро / 1 поток            | 1 ГБ (4096 МБ)           | IDE, 128 МБ               | Mikrotik<br>(RouterOS 7.22.1) |
-| BR-RTR | 1 ядро / 1 поток            | 1 ГБ (4096 МБ)           | IDE, 128 МБ               | Mikrotik<br>(RouterOS 7.22.1) |
+| HQ-RTR | 1 ядро / 1 поток            | 1 ГБ (4096 МБ)           | IDE, 128 МБ               | RouterOS 7.22.1<br>(Other Linux 3.x kernel 64-bit) |
+| BR-RTR | 1 ядро / 1 поток            | 1 ГБ (4096 МБ)           | IDE, 128 МБ               | RouterOS 7.22.1<br>(Other Linux 3.x kernel 64-bit) |
 | HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
 | BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
 | HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Alt p11 Starterkit xfce<br>(Other Linux 6.x kernel 64-bit) |
@@ -375,7 +375,6 @@ systemctl restart sshd
 ```
 interface/gre/add name=HQ-BR local-address=172.16.1.2 remote-address=172.16.2.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
 ip/address/add address=10.10.10.1/30 network=10.10.10.0 interface=HQ-BR
-
 ```
 ### BR-RTR
 ```
