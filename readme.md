@@ -419,17 +419,6 @@ write memory
 * Ограничьте количество попыток входа до двух 
 * Настройте баннер «Authorized access only».
 
-Перед началом убедимся, что пакет openssh-sever установлен
-```bash
-apt-cache policy openssh-server
-```
-> [!NOTE]
->Если не установлен, то вернитесь после 10 задания 1 модуля, установите пакет и продолжите настройку 
->```bash
->apt-get update
->apt-get install openssh-server
->```
-
 Редактируем /etc/openssh/sshd_config
 ```bash
 nano /etc/openssh/sshd_config
