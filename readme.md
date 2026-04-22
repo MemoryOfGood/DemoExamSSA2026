@@ -1,4 +1,4 @@
-<img width="463" height="593" alt="Снимок экрана 2025-11-24 130720" src="https://github.com/user-attachments/assets/8740b3f1-048e-48d5-a7bf-252bf3cf63d9" />
+<img width="682" height="655" alt="Дэмо" src="https://github.com/user-attachments/assets/d2d81999-fb6d-42a3-bf05-70060b3137c6" />
 
 **Рисунок 1**
 
@@ -421,9 +421,14 @@ write memory
 
 Перед началом убедимся, что пакет openssh-sever установлен
 ```bash
-apt-get update
-apt-get install openssh-server
+apt-cache policy openssh-server
 ```
+> [!NOTE]
+>Если не установлен, то вернитесь после 10 задания 1 модуля, установите пакет и продолжите настройку 
+>```bash
+>apt-get update
+>apt-get install openssh-server
+>```
 
 Редактируем /etc/openssh/sshd_config
 ```bash
@@ -671,11 +676,12 @@ echo nameserver 77.88.8.8 > /etc/net/ifaces/ens33.100/resolv.conf
 service network restart
 ```
 
-Обновляем список репозиториев и устанавливаем пакет dnsmasq
-```bash
-apt-get update
-apt-get install dnsmasq
-```
+> [!NOTE]
+> Если не установлен, обновляем список репозиториев и устанавливаем пакет dnsmasq
+>```bash
+> apt-get update
+> apt-get install dnsmasq
+>```
 
 Редактируем конфигурационный файл dnsmasq.conf
 ```bash
@@ -823,9 +829,9 @@ mkdir -p /var/lib/samba/sysvol
 ```
 
 >[!Warning]
->Обязательно удаляйте /etc/samba/smb.conf перед созданием домена:
+> Обязательно удаляйте /etc/samba/smb.conf перед созданием домена:
 >```bash
->rm -f /etc/samba/smb.conf
+> rm -f /etc/samba/smb.conf
 >```
 
 Для того чтобы работал домен проверяем наличие и правильность ДНС в файле /etc/resolv.conf:
@@ -845,10 +851,15 @@ samba-tool domain provision
 
 При запросе ввода нажимайте **Enter** за исключением запроса пароля администратора («Administrator password:» и «Retype password:»).
 
+При запросе ввода нажимайте **Enter** за исключением запроса пароля администратора («Administrator password:» и «Retype password:»).
+>[!TIP]
+> Лучше исползовать стандартный пароль, который был указан ранее в задании
+> ```P@ssw0rd```
+
 У Samba есть свой собственный DNS-сервер. В DNS forwarder IP address нужно проверить что указывается/указать DNS-сервер HQ-SRV (192.168.1.30), чтобы DC мог разрешать внешние доменные имена.
 
 После удачного развертывания домена выведет сообщение об этом:
-![[Pasted image 20251217132038.png]]
+
 **Рисунок**
 
 Перемещаем сгенерированный конфиг krb5.conf:
@@ -929,19 +940,20 @@ acc
 ставим галочку у **восстановить файлы…**
 После нажимаем кнопку **Применить**:
 
-![[Pasted image 20251217140619.png]]
+<img width="835" height="549" alt="Снимок экрана 2025-12-17 140616" src="https://github.com/user-attachments/assets/25214522-4242-4ad9-87ff-6715ab0e4507" />
+
 **Рисунок** 
 
 Соглашаемся на восстановление файлов конфигурации по умолчанию
-![[Pasted image 20251217140746.png]]
+<img width="422" height="171" alt="Снимок экрана 2025-12-17 140713" src="https://github.com/user-attachments/assets/3984cb32-8cf4-4bcc-ba24-e83309850dde" />
 **Рисунок**
 
 Вводим пароль администратора, который ввели при создания домена (P@ssw0rd) и нажимаем кнопку **ОК**:
-![[Pasted image 20251217141119.png]]
+<img width="476" height="286" alt="Снимок экрана 2025-12-17 141118" src="https://github.com/user-attachments/assets/1584875d-c8c7-4e77-b881-e8785e023c44" />
 **Рисунок** 
 
 При успешном вводе в домен выведется информация:
-![[Pasted image 20251217141158.png]]
+<img width="236" height="151" alt="Снимок экрана 2025-12-17 141156" src="https://github.com/user-attachments/assets/b5dfea0a-1508-4f0b-85da-8cfb27fe94a6" />
 **Рисунок** 
 
 Перезагружаем систему командой ```reboot``` или через графический интерфейс
@@ -954,7 +966,8 @@ acc
 Перед начало выключаем ВМ и добавляем 2 виртуальных жестких дисках по 1 ГБ в VmWare Workstation для HQ-SRV  
 Переходим **Edit virtual machine settings** > **Add..** > **Hard Disk**
 
-![[Pasted image 20251124174527.png]]
+<img width="378" height="332" alt="Снимок экрана 2025-11-10 080737" src="https://github.com/user-attachments/assets/6d1a8020-f0dd-43bf-82de-4d9b2be3d17c" />
+
 **Рисунок** 
 
 Просматриваем имеющийся диски и запоминаем их имена
