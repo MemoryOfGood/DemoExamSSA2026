@@ -464,7 +464,7 @@ ip -c a
 | HQ-RTR                                        | hq-rtr.au-team.irpo | A, PTR | 192.168.1.1                       |
 | BR-RTR                                        | br-rtr.au-team.irpo | A      | 192.168.3.1                       |
 | HQ-SRV                                        | hq-srv.au-team.irpo | A, PTR | 192.168.1.30                      |
-| HQ-CLI                                        | hq-cli.au-team.irpo | A, PTR | 192.168.2.2<br>(Смотрите по DHCP) |
+| HQ-CLI                                        | hq-cli.au-team.irpo | A, PTR | 192.168.2.14<br>(Смотрите по DHCP) |
 | BR-SRV                                        | br-srv.au-team.irpo | A      | 192.168.3.14                      |
 | ISP (интерфейс направленный в сторону HQ-RTR) | docker.au-team.irpo | A      | 172.16.1.1                        |
 | ISP (интерфейс направленный в сторону BR-RTR) | web.au-team.irpo    | A      | 172.16.2.1                        |
@@ -477,6 +477,11 @@ echo nameserver 77.88.8.8 > /etc/net/ifaces/ens33.100/resolv.conf
 Перезапускаем сеть
 ```bash
 service network restart
+```
+
+Проверяем на наличие пакета dnsmasq
+```
+apt-cache policy dnsmasq
 ```
 
 > [!NOTE]
@@ -499,6 +504,9 @@ domain=au-team.irpo
 server=77.88.8.8
 interface=*
 
+>[!Warning]
+> Проверть ip-адрес HQ-CLI
+
 #HQ-RTR                                     
 address=/hq-rtr.au-team.irpo/192.168.1.1
 ptr-record=1.1.168.192.in-addr.arpa,hq-rtr.au-team.irpo
@@ -509,8 +517,8 @@ address=/br-rtr.au-team.irpo/192.168.3.1
 #HQ-SRV
 address=/hq-srv.au-team.irpo/192.168.1.30
 ptr-record=30.1.168.192.in-addr.arpa,hq-srv.au-team.irpo
-#HQ-CLI
-address=/hq-cli.au-team.irpo/192.168.2.2
+#HQ-CLI 
+address=/hq-cli.au-team.irpo/192.168.2.14
 ptr-record=2.2.168.192.in-addr.arpa,hq-cli.au-team.irpo
 #BR-SRV
 address=/br-srv.au-team.irpo/192.168.3.14
@@ -708,12 +716,6 @@ samba-tool group add hq
 samba-tool group addmembers hq user1.hq,user2.hq,user3.hq,user4.hq,user5.hq
 ```
 ### HQ-CLI
-
->[!TIP]
->Перед началом следует перезапустить сеть у HQ-CLI:
->```bash
->service network restart
->```
 
 Устанавливаем пакет, отвечающий за подключение в домен task-auth-ad-sssd:
 ```bash
@@ -1009,16 +1011,37 @@ su -
 systemctl status sshd
 ```
 
-Если отсутствует, то устанавливаем 
-```bash
-apt-get update
-apt-get install openssh-server
+>[!NOTE]
+>Если отсутствует, то устанавливаем
+>```bash
+> apt-get update
+> apt-get install openssh-server
+>```
+
+>[!Note]
+>Если не включен inactive (dead), то включаем
+>```
+> systemctl enable --now sshd
+>```
+
+### HQ-CLI и HQ-SRV
+Устанавливаем пакет
 ```
+apt-get install python3
+```
+
+
 ### BR-SRV
 Обновляем лист с репозиториями и устанавливаем пакет ansible
 ```bash
 apt-get update
 apt-get install ansible
+```
+
+Устанавливаем плагины для работы с микротиком
+```
+ansible-galaxy collection install ansible.netcommon
+ansible-galaxy collection install community.routeros
 ```
 
 Редактируем файл hosts
@@ -1028,10 +1051,11 @@ nano /etc/ansible/hosts
 >[!TIP]
 >Указываем для HQ-SRV пользователя которого создавали в 3 задании 1 модуля,
 >для HQ-CLI пользователя который был создан при установке (в данном случае user:1)
+
 ```bash
 [RTR]
 hq-rtr ansible_host=hq-rtr
-br-rtr ansible_host=hq-rtr
+br-rtr ansible_host=br-rtr
 [RTR:vars]
 ansible_connection=ansible.netcommon.network_cli
 ansible_network_os=community.routeros.routeros
@@ -1069,7 +1093,7 @@ ansible all -m ping
 ```
 ## 6. Разверните веб приложение в docker на сервере BR-SRV:
 * Средствами docker должен создаваться стек контейнеров с веб приложением и базой данных
-* Используйте образы site_latestи mariadb_latest располагающиеся в директории docker в образе Additional.iso
+* Используйте образы site_latest и mariadb_latest располагающиеся в директории docker в образе Additional.iso
 * Основной контейнер testapp должен называться tespapp
 * Контейнер с базой данных должен называться db 
 * Импортируйте образы в docker, укажите в yaml файле параметры подключения к СУБД, имя БД - testdb, пользователь testс паролем P@ssw0rd, порт приложения 8080, при необходимости другие параметры
@@ -1083,7 +1107,7 @@ apt-get install docker-engine docker-compose-v2
 ```
 Добавляем в автозагрузку и смотрим статус docker:
 ```bash
-systemctl enable –now docker
+systemctl enable -–now docker
 systemctl status docker
 ```
 
@@ -1092,6 +1116,11 @@ systemctl status docker
 <img width="702" height="414" alt="Pasted image 20251222113428" src="https://github.com/user-attachments/assets/9752a3f0-651a-4c1c-839b-1a967d5f4f22" />
 
 **Рисунок**
+
+Создаём папку для подключения
+```
+mkdir /media/ALTLinux
+```
 
 Монтируем подключаемый образ:
 ```bash
@@ -1208,6 +1237,10 @@ systemctl enable --now mariadb
 
 **Рисунок**
 
+Создаём папку для подключения
+```
+mkdir /media/ALTLinux
+```
 Монтируем подключаемый образ:
 ```bash
 mount /dev/cdrom /media/ALTLinux
