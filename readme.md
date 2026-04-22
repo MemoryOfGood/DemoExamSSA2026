@@ -1068,7 +1068,7 @@ ansible_user=sshuser
 ansible_password=P@ssw0rd
 ansible_port=2026
 [CLI]
-hq-cli ansible_host=user@hq-cli
+hq-cli ansible_host=hq-cli
 [CLI:vars]
 ansible_user=user
 ansible_password=1
