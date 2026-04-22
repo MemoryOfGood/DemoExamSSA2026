@@ -1,4 +1,5 @@
 <img width="682" height="655" alt="Дэмо" src="https://github.com/user-attachments/assets/d2d81999-fb6d-42a3-bf05-70060b3137c6" />
+
 **Рисунок 1**
 
 Таблица 1
@@ -478,11 +479,12 @@ echo nameserver 77.88.8.8 > /etc/net/ifaces/ens33.100/resolv.conf
 service network restart
 ```
 
-Обновляем список репозиториев и устанавливаем пакет dnsmasq
-```bash
-apt-get update
-apt-get install dnsmasq
-```
+> [!NOTE]
+> Если не установлен, обновляем список репозиториев и устанавливаем пакет dnsmasq
+>```bash
+> apt-get update
+> apt-get install dnsmasq
+>```
 
 Редактируем конфигурационный файл dnsmasq.conf
 ```bash
@@ -624,9 +626,9 @@ mkdir -p /var/lib/samba/sysvol
 ```
 
 >[!Warning]
->Обязательно удаляйте /etc/samba/smb.conf перед созданием домена:
+> Обязательно удаляйте /etc/samba/smb.conf перед созданием домена:
 >```bash
->rm -f /etc/samba/smb.conf
+> rm -f /etc/samba/smb.conf
 >```
 
 Для того чтобы работал домен проверяем наличие и правильность ДНС в файле /etc/resolv.conf:
@@ -652,7 +654,7 @@ samba-tool domain provision
 У Samba есть свой собственный DNS-сервер. В DNS forwarder IP address нужно проверить что указывается/указать DNS-сервер HQ-SRV (192.168.1.30), чтобы DC мог разрешать внешние доменные имена.
 
 После удачного развертывания домена выведет сообщение об этом:
-![[Pasted image 20251217132038.png]]
+
 **Рисунок**
 
 Перемещаем сгенерированный конфиг krb5.conf:
