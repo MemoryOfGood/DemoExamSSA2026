@@ -988,7 +988,6 @@ ctrl+o
 ### HQ-CLI
 Cкачиваем службу systemd-timesyncd:
 ```bash
-apt-get update
 apt-get install systemd-timesyncd
 ```
 ### HQ-CLI и HQ-SRV
