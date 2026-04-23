@@ -741,6 +741,7 @@ samba-tool group addmembers hq user1.hq,user2.hq,user3.hq,user4.hq,user5.hq
 
 Устанавливаем пакет, отвечающий за подключение в домен task-auth-ad-sssd:
 ```bash
+apt-get update
 apt-get install task-auth-ad-sssd
 ```
 
@@ -869,10 +870,16 @@ systemctl restart nfs
 ```
 ### HQ-CLI
 
-Cкачиваем пакет nfs-clients
-```bash
-apt-get install nfs-clients
+
+Проверяем на наличие пакета nfs-clients
 ```
+apt-cache policy nfs-clients
+```
+>[!NOTE]
+>Cкачиваем пакет nfs-clients
+>```bash
+>apt-get install nfs-clients
+>```
 
 Создадим папку куда будем монтировать сетевую папку
 ```bash
@@ -977,6 +984,12 @@ yes
 Сохраняем
 ```
 ctrl+o
+```
+### HQ-CLI
+Cкачиваем службу systemd-timesyncd:
+```bash
+apt-get update
+apt-get install systemd-timesyncd
 ```
 ### HQ-CLI и HQ-SRV
 Изменяем в конфиге: /etc/systemd/timesyncd.conf
