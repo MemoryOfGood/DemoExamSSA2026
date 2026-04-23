@@ -7,12 +7,39 @@
 | Имя ВМ | Центральный процессор<br>(CPU) | Оперативная память<br>(RAM) | Накопитель,<br>Тип и объём | Операционная система<br>(тип для VMware)|
 | ------ | --------------------------- | ------------------------ | ----------------------- | ------------------------------------------------ |
 | ISP    | 1 ядро / 1 поток            | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
-| HQ-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit) |
-| BR-RTR | 1 ядро / 1 поток            | 4 ГБ (4096 МБ)           | IDE, 8 ГБ               | EcoRouter<br>(Debian 10.x 64-bit) |
+| HQ-RTR | 1 ядро / 1 поток            | 1 ГБ (4096 МБ)           | IDE, 128 МБ               | RouterOS 7.22.1<br>(Other Linux 3.x kernel 64-bit) |
+| BR-RTR | 1 ядро / 1 поток            | 1 ГБ (4096 МБ)           | IDE, 128 МБ               | RouterOS 7.22.1<br>(Other Linux 3.x kernel 64-bit) |
 | HQ-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
 | BR-SRV | 1 ядро / 1 поток            | 2 ГБ (2048 МБ)           | SCSI, 25ГБ              | Alt Server 11<br>(Other Linux 6.x kernel 64-bit) |
-| HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt p11 Starterkit xfce<br>(Other Linux 6.x kernel 64-bit) |
-| ИТОГО  | 7                           | ~ 14 ГБ (15360 МБ)       | ~ 115 ГБ                |                                                 |
+| HQ-CLI | 1 ядро / 2 потока           | 1 ГБ (1024 МБ)           | SCSI, 25ГБ              | Alt Alt p11 Starterkit xfce<br>(Other Linux 6.x kernel 64-bit) |
+| ИТОГО  | 7                           | ~ 8 ГБ (8192 МБ)       | ~ 101 ГБ                |                                                 |
+
+# Подготовка
+> [!WARNING]
+> Так как скорость интернета и скачивания с сервера из Московского репозитория медленная, для того чтобы установить неоторые следует использовать диск в качестве репозитория
+
+### ISP, HQ-SRV, BR-SRV, HQ-CLI
+> [!WARNING]
+> Для HQ-CLI сперва нужно перейти в суперпользователя
+> ```
+> su -
+> ```
+Создаём каталог для подключения образа
+```
+mkdir /media/ALTLinux
+```
+Монтируем образ
+```
+mount /dev/sr0 /media/ALTLinux
+```
+Добавляем образ в автозагрузку
+```
+echo '/dev/sr0  /media/ALTLinux  udf,iso9660  user,noauto  0  0' | tee -a /etc/fstab
+```
+Добавляем образ в список репозиториев
+```
+apt-cdrom -m add
+```
 
 # Модуль 1
 ## 1. Произведите базовую настройку устройств
@@ -25,111 +52,44 @@
 * Локальная сеть в сторону BR-SRV должна вмещать не более 16 адресов
 * Сведения об адресах занесите в таблицу 2, в качестве примера используйте Прил_3_О1_КОД 09.02.06-1-2026-М1
 
+> [!WARNING]
+> На HQ-RTR и BR-RTR также надо добавить тетий адаптер "Только локальный"/"Host-Only" который будут использоваться в качестве управления через winbox
+
 > [!NOTE]
 > ISP будет настраиваться в следующем задании
 ### HQ-RTR
-Переходим к режиму администрирования
-```
-en
-```
-Переходим в конфигурационный режим
-```
-config
-```
 Задаём имя для роутера
 ```
-hostname HQ-RTR
-ip domain-name au-team.irpo
+system/identity/set name=HQ-RTR.au-team.irpo
+```
+Устанавливаем IP-адрес для маршутизатора
+```
+ip/address/add address=172.16.1.2/28 network=172.16.1.0 interface=ether1
+```
+Добавляем статический маршртут для выхода в сеть
+```
+ip/route/add dst-address=0.0.0.0/0 gateway=172.16.1.1
+```
+Создаём подинтерфесы для ether2
+```
+interface/vlan/add name=vlan100 vlan-id=100 interface=ether2
+interface/vlan/add name=vlan200 vlan-id=200 interface=ether2
+interface/vlan/add name=vlan999 vlan-id=999 interface=ether2
 ```
 
->[!Tip]
->Для выхода из этого режима или с любого подуровня конфигурации используется команда exit или сочетания клавиш ```Ctrl+D``` 
-
-Создаем интерфейсы который присоединим к портам позже
-```
-interface SRV
-	ip mtu 1500
-	ip nat inside
-	ip address 192.168.1.1/27
-	no shutdown
-	ctrl+d
-interface CLI
-	ip mtu 1500
-	ip nat inside
-	ip address 192.168.2.1/28
-	no shutdown
-	ctrl+d
-interface MGMT
-	ip mtu 1500
-	ip nat inside
-	ip address 192.168.99.1/29
-	no shutdown
-	ctrl+d
-interface ISP
-    ip nat outside
-    ip address 172.16.1.2/28
-	no shutdown
-	ctrl+d
-```
-Присоединяем интерфейс ISP к порту ge0
-```
-port ge0
-	service-instance ge0
-		encapsulation untagged
-		connect ip interface ISP
-		ctrl+d
-	ctrl+d
-```
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
-```
 ### BR-RTR 
-Переходим к режиму администрирования
-```
-en
-```
-Переходим в конфигурационный режим
-```
-config
-```
 Задаём имя для роутера
 ```
-hostname BR-RTR
-ip domain-name au-team.irpo
+system/identity/set name=BR-RTR.au-team.irpo
 ```
-Создаем интерфейсы и присоединяем к портам
+Устанавливаем IP-адрес для маршутизатора
 ```
-interface ISP  
-	ip nat outside
-	ip address 172.16.2.2/28
-	no shutdown
-	ctrl+d
-port ge0
-	service-instance ge0
-		encapsulation untagged
-			connect ip interface ISP
-			ctrl+d
-		ctrl+d
-interface LAN
-	ip nat inside
-	ip mtu 1500
-	ip address 192.168.3.1/28
-	no shutdown
-	ctrl+d
-port te0
-	mtu 9234
-	service-instance te0
-		encapsulation untagged
-		connect ip interface LAN
-		ctrl+d
-	ctrl+d
+ip/address/add address=172.16.2.2/28 network=172.16.2.0 interface=ether1
+ip/address/add address=192.168.3.1/28 network=192.168.3.0 interface=ether2
 ```
-Cохраняем конфигурацию
+Добавляем статический маршртут для выхода в сеть
 ```
-ctrl+z
-write memory
+ip/route/add dst-address=0.0.0.0/0 gateway=172.16.2.1
 ```
 
 ### HQ-SRV
@@ -344,16 +304,7 @@ systemctl enable --now iptables
 
 ### HQ-RTR и BR-RTR 
 ```
-config
-username net_admin
-	password P@ssw0rd
-	role admin
-	ctrl+d
-```
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+/user/add name=net_admin group=full password="P@ssw0rd"
 ```
 ### HQ-SRV и BR-SRV
 ```bash
@@ -388,37 +339,17 @@ usermod -aG wheel sshuser
 * Сведения о настройке коммутации внесите в отчёт
 
 ```
-port te0 
-	mtu 9234
-	service-instance te0/vlan100
-		encapsulation dot1q 100
-		rewrite pop 1
-		connect ip interface SRV
-		ctrl+d
-	service-instance te0/vlan200
-		encapsulation dot1q 200
-		rewrite pop 1
-		connect ip interface CLI
-		ctrl+d
-	service-instance te0/vlan999
-		encapsulation dot1q 999
-		rewrite pop 1
-		connect ip interface MGMT
-		ctrl+d
-	ctrl+d
+ip/address/add address=192.168.1.1/27 network=192.168.1.0 interface=vlan100
+ip/address/add address=192.168.2.1/28 network=192.168.2.0 interface=vlan200
+ip/address/add address=192.168.99.1/29 network=192.168.99.0 interface=vlan999
 ```
 
-Cохраняем конфигурацию
-```
-crtl+z
-write memory
-```
 ## 5. Настройте безопасный удаленный доступ на серверах HQ-SRV и BR-SRV
 * Для подключения используйте порт 2026
 * Разрешите подключения исключительно пользователю sshuser
 * Ограничьте количество попыток входа до двух 
 * Настройте баннер «Authorized access only».
-
+ 
 Редактируем /etc/openssh/sshd_config
 ```bash
 nano /etc/openssh/sshd_config
@@ -457,42 +388,22 @@ systemctl restart sshd
 * Сведения о туннеле занесите в отчёт
 
 ### HQ-RTR
-
->[!NOTE]
->Для выбора технологии указывается ```mode gre``` или ```ipip``` на выбор
 ```
-config
-interface tunnel.1 
-	ip mtu 1400
-	ip address 10.10.10.1/30
-	ip tunnel 172.16.1.2 172.16.2.2 mode gre
-	ctrl+d
-ip route 0.0.0.0/0 172.16.1.1
+interface/gre/add name=HQ-BR local-address=172.16.1.2 remote-address=172.16.2.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
+ip/address/add address=10.10.10.1/30 network=10.10.10.0 interface=HQ-BR
 ```
-
-Cохраняем конфигурацию
+Для отчёта
 ```
-ctrl+z
-write memory
+interface/gre/print
 ```
 ### BR-RTR
-
->[!NOTE]
->Для выбора технологии указывается ```mode gre``` или ```ipip``` на выбор
 ```
-config
-interface tunnel.1
-	ip mtu 1400
-	ip address 10.10.10.2/30
-	ip tunnel 172.16.2.2 172.16.1.2 mode gre
-	ctrl+d
-ip route 0.0.0.0/0 172.16.2.1
+interface/gre/add name=BR-HQ local-address=172.16.2.2 remote-address=172.16.1.2 allow-fast-path=no ipsec-secret="P@ssw0rd"
+ip/address/add address=10.10.10.2/30 network=10.10.10.0 interface=BR-HQ
 ```
-
-Cохраняем конфигурацию
+Для отчёта
 ```
-crtl+z
-write memory
+interface/gre/print
 ```
 
 ## 7. Обеспечьте динамическую маршрутизацию на маршрутизаторах HQ-RTR и BR-RTR
@@ -501,76 +412,19 @@ write memory
 * Маршрутизаторы должны делиться маршрутами только друг с другом
 * Обеспечьте защиту выбранного протокола посредством парольной защиты
 * Сведения о настройке и защите протокола занесите в отчёт.
-### HQ-RTR
+### HQ-RTR и BR-RTR
 ```
-config
-router ospf 1
-	network 10.10.10.0 0.0.0.3 area 0.0.0.0
-	network 192.168.1.0 0.0.0.31 area 0.0.0.0
-	network 192.168.2.0 0.0.0.15 area 0.0.0.0
-	ctrl+d
-interface tunnel.1
-	ip ospf authentication message-digest
-	ip ospf message-digest-key 1 md5 P@ssw0rd
-	ip ospf network point-to-point
-	ctrl+d
-```
-
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
-```
-
-### BR-RTR
-```
-config
-router ospf 1
-	network 10.10.10.0 0.0.0.3 area 0.0.0.0
-	network 192.168.3.0 0.0.0.15 area 0.0.0.0
-	ctrl+d
-interface tunnel.1
-	ip ospf authentication message-digest
-	ip ospf message-digest-key 1 md5 P@ssw0rd
-	ip ospf network point-to-point
-	ctrl+d
-```
-
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+routing/ospf/instance/add
+routing/ospf/area/add area-id=10.10.10.0 instance=ospf-instance-1
+routing/ospf/interface-template/add area=ospf-area-1 networks="10.10.10.0/30, 192.168.1.0/27, 192.168.2.0/28, 192.168.3.0/28"
 ```
 
 ## 8. Настройка динамической трансляции адресов маршрутизаторах HQ-RTR и BR-RTR
 * Настройте динамическую трансляцию адресов для обоих офисов в сторону ISP, все устройства в офисах должны иметь доступ к сети Интернет
 
-### HQ-RTR
-
+### HQ-RTR и BR-RTR
 ```
-config
-ip nat pool NAT 192.168.1.1-192.168.1.30,192.168.2.1-192.168.2.14
-ip nat source dynamic inside-to-outside pool NAT overload interface ISP
-```
-
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
-```
-
-### BR-RTR
-
-```
-config
-ip nat pool NAT 192.168.3.1-192.168.3.14
-ip nat source dynamic inside-to-outside pool NAT overload interface ISP
-```
-
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+ip/firewall/nat/add chain=srcnat action=masquerade out-interface=ether1
 ```
 
 ## 9. Настройте протокол динамической конфигурации хостов для сети в сторону HQ-CLI
@@ -584,54 +438,28 @@ write memory
 * Сведения о настройке протокола занесите в отчёт.
 
 ### HQ-RTR
-Переходим в конфигурационный режим
+Cоздаём пул адресов
 ```
-config
+ip/pool/add name=hq-pool ranges="192.168.2.2-192.168.2.14"
 ```
-
-Создаём пул адресов
+Cоздаем сервер, указывая интерфейс vlan200 и пул hq-pool
 ```
-ip pool Vlan200 192.168.2.1-192.168.2.14
+ip/dhcp-server/add name=dhcp-server interface=vlan200 address-pool=hq-pool
 ```
-
-Настраиваем dhcp-сервер
+Указываем параметры для DHCP-сервера
 ```
-dhcp-server 1 
-	lease 86400
-	pool Vlan200 1
-		dns 192.168.1.30
-		domain-name au-team.irpo
-		gateway 192.168.2.1
-		mask 28
-		ctrl+d
-	ctrl+d
-```
-
-Выбираем интерфейс на котором будет работать dhcp-сервер
-```
-interface CLI
-	dhcp-server 1
-	ctrl+d
-```
-
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+ip/dhcp-server/network/add address=192.168.2.0/28 gateway=192.168.2.1 netmask=28 dns-server=192.168.1.30 domain="au-team.irpo"
 ```
 
 ### HQ-CLI
-
 Переходим в суперпользователя в терминале
 ```bash
 su -
 ```
-
 Выполняем запуск dhcp-клиента
 ```bash
 dhcpcd
 ```
-
 Выводим адреса для проверки
 ```bash
 ip -c a
@@ -642,6 +470,12 @@ ip -c a
 * Сервер должен обеспечивать разрешение имён в сетевые адреса устройств и обратно в соответствии с таблицей 3
 * В качестве DNS сервера пересылки используйте любой общедоступный DNS сервер (77.88.8.7, 77.88.8.3 или другие)
 
+### HQ-CLI
+>[!Warning]
+> Перед начало проверьте ip-адрес HQ-CLI
+> ```
+> ip -c a
+> ```
 
 **Таблица 3**
 
@@ -650,10 +484,12 @@ ip -c a
 | HQ-RTR                                        | hq-rtr.au-team.irpo | A, PTR | 192.168.1.1                       |
 | BR-RTR                                        | br-rtr.au-team.irpo | A      | 192.168.3.1                       |
 | HQ-SRV                                        | hq-srv.au-team.irpo | A, PTR | 192.168.1.30                      |
-| HQ-CLI                                        | hq-cli.au-team.irpo | A, PTR | 192.168.2.2<br>(Смотрите по DHCP) |
+| HQ-CLI                                        | hq-cli.au-team.irpo | A, PTR | 192.168.2.14<br>(Смотрите по DHCP) |
 | BR-SRV                                        | br-srv.au-team.irpo | A      | 192.168.3.14                      |
 | ISP (интерфейс направленный в сторону HQ-RTR) | docker.au-team.irpo | A      | 172.16.1.1                        |
 | ISP (интерфейс направленный в сторону BR-RTR) | web.au-team.irpo    | A      | 172.16.2.1                        |
+
+### HQ-SRV
 
 Прописываем общедоступный DNS-сервер 
 ```bash
@@ -665,10 +501,14 @@ echo nameserver 77.88.8.8 > /etc/net/ifaces/ens33.100/resolv.conf
 service network restart
 ```
 
+Проверяем на наличие пакета dnsmasq
+```
+apt-cache policy dnsmasq
+```
+
 > [!NOTE]
-> Если не установлен, обновляем список репозиториев и устанавливаем пакет dnsmasq
+> Если не установлен, устанавливаем пакет dnsmasq
 >```bash
-> apt-get update
 > apt-get install dnsmasq
 >```
 
@@ -676,6 +516,7 @@ service network restart
 ```bash
 nano /etc/dnsmasq.conf
 ```
+
 
 И добавляем в неё строки (для удобства прям с первой строки файла):
 ```bash
@@ -695,8 +536,8 @@ address=/br-rtr.au-team.irpo/192.168.3.1
 #HQ-SRV
 address=/hq-srv.au-team.irpo/192.168.1.30
 ptr-record=30.1.168.192.in-addr.arpa,hq-srv.au-team.irpo
-#HQ-CLI
-address=/hq-cli.au-team.irpo/192.168.2.2
+#HQ-CLI 
+address=/hq-cli.au-team.irpo/192.168.2.14
 ptr-record=2.2.168.192.in-addr.arpa,hq-cli.au-team.irpo
 #BR-SRV
 address=/br-srv.au-team.irpo/192.168.3.14
@@ -754,22 +595,15 @@ systemctl restart network
 
 ### HQ-RTR, BR-RTR
 ```
-config
-ntp timezone utc+8
-```
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+system/clock/set time-zone-name=Asia/Irkutsk
 ```
 ### ISP, HQ-SRV, HQ-CLI, BR-SRV
 Выключаем службу chrony:
 ```bash
 systemctl disable --now chronyd
 ```
-Обновляем список пакетов и скачиваем службу systemd-timesyncd:
+Cкачиваем службу systemd-timesyncd:
 ```bash
-apt-get update
 apt-get install systemd-timesyncd
 ```
 Теперь включим службу systemd-timesyncd и посмотрим её статус работы:
@@ -805,7 +639,6 @@ systemctl restart dnsmasq
 ### BR-SRV
 Для Samba DC (на базе Heimdal Kerberos) необходимо установить компонент samba-dc:
 ```bash
-apt-get update
 apt-get install task-samba-dc
 ```
 
@@ -839,6 +672,9 @@ samba-tool domain provision
 ```
 
 При запросе ввода нажимайте **Enter** за исключением запроса пароля администратора («Administrator password:» и «Retype password:»).
+>[!TIP]
+> Лучше исползовать стандартный пароль, который был указан ранее в задании
+> ```P@ssw0rd```
 
 При запросе ввода нажимайте **Enter** за исключением запроса пароля администратора («Administrator password:» и «Retype password:»).
 >[!TIP]
@@ -903,12 +739,6 @@ samba-tool group addmembers hq user1.hq,user2.hq,user3.hq,user4.hq,user5.hq
 ```
 ### HQ-CLI
 
->[!TIP]
->Перед началом следует перезапустить сеть у HQ-CLI:
->```bash
->service network restart
->```
-
 Устанавливаем пакет, отвечающий за подключение в домен task-auth-ad-sssd:
 ```bash
 apt-get update
@@ -939,10 +769,12 @@ acc
 
 Вводим пароль администратора, который ввели при создания домена (P@ssw0rd) и нажимаем кнопку **ОК**:
 <img width="476" height="286" alt="Снимок экрана 2025-12-17 141118" src="https://github.com/user-attachments/assets/1584875d-c8c7-4e77-b881-e8785e023c44" />
+
 **Рисунок** 
 
 При успешном вводе в домен выведется информация:
 <img width="236" height="151" alt="Снимок экрана 2025-12-17 141156" src="https://github.com/user-attachments/assets/b5dfea0a-1508-4f0b-85da-8cfb27fe94a6" />
+
 **Рисунок** 
 
 Перезагружаем систему командой ```reboot``` или через графический интерфейс
@@ -963,6 +795,9 @@ acc
 ```bash
 lsblk
 ```
+<img width="358" height="129" alt="Снимок экрана 2025-11-10 081300" src="https://github.com/user-attachments/assets/bcf2a1d5-dbb4-4db4-869d-06779726a893" />
+
+**Рисунок** 
 
 Создаём raid-массив и форматируем его в файловой системе ext4
 ```bash
@@ -980,6 +815,9 @@ mount /dev/md0 /raid
 ```bash
 df -h
 ```
+<img width="643" height="180" alt="Снимок экрана 2025-11-10 085400" src="https://github.com/user-attachments/assets/c73a0b06-c9af-4432-913a-2de91099a4b5" />
+
+**Рисунок**
 
 Считываем характеристики массива и записываем в файл /etc/mdadm/mdadm.conf, чтобы массив автоматически подключался после перезагрузки
 ```bash
@@ -992,10 +830,17 @@ echo '/dev/md0 /raid ext4 defaults,nofail,discard 0 0' | tee -a /etc/fstab
 * На HQ-CLI настройте автомонтирование в папку /mnt/nfs
 * Основные параметры сервера отметьте в отчёте
 
+### HQ-RTR
+>[!WARNING]
+>Выполняем проброс портов чтобы можно было подключиться по nfs к HQ-SRV
+```
+ip/firewall/nat/add chain=dstnat action=dst-nat protocol=tcp port=2049 to-ports=2049
+ip/firewall/nat/add chain=dstnat action=dst-nat protocol=udp port=2049 to-ports=2049
+```
+
 ### HQ-SRV
-Обновляем список репозиториев и скачиваем пакет nfs-server
+Cкачиваем пакет nfs-server
 ```bash
-apt-get update
 apt-get install nfs-server
 ```
 
@@ -1013,20 +858,28 @@ echo '/raid/nfs 192.168.2.0/28(rw,sync,no_subtree_check)' | tee -a /etc/exports
 exportfs -rav
 exportfs -v
 ```
+<img width="829" height="100" alt="Снимок экрана 2025-11-10 091311" src="https://github.com/user-attachments/assets/d4921e15-552b-4473-8b0d-80b32f4c1c78" />
+
+**Рисунок**
+
 
 Включаем и перезапускаем службу NFS:
 ```bash
 systemctl enable --now nfs
 systemctl restart nfs
 ```
-
 ### HQ-CLI
 
-Обновляем список репозиториев и скачиваем пакет nfs-clients
-```bash
-apt-get update
-apt-get install nfs-clients
+
+Проверяем на наличие пакета nfs-clients
 ```
+apt-cache policy nfs-clients
+```
+>[!NOTE]
+>Cкачиваем пакет nfs-clients
+>```bash
+>apt-get install nfs-clients
+>```
 
 Создадим папку куда будем монтировать сетевую папку
 ```bash
@@ -1042,6 +895,9 @@ echo 'HQ-SRV:/raid/nfs /mnt/nfs nfs intr,soft,_netdev,x-systemd.automount 0 0' |
 mount -a
 df -h
 ```
+<img width="905" height="282" alt="Снимок экрана 2025-11-10 094047" src="https://github.com/user-attachments/assets/050f40dc-9b11-4bed-808a-5f01280ad6da" />
+
+**Рисунок**
 
 ## 4.  Настройте службу сетевого времени на базе сервиса chrony на маршрутизаторе ISP
 * Вышестоящий сервер ntp на маршрутизаторе ISP - на выбор участника 
@@ -1049,10 +905,9 @@ df -h
 * В качестве клиентов ntp настройте: HQ-SRV, HQ-CLI, BR-RTR, BR-SRV
 
 ### ISP
-Обновляем списки репозиториев и устанавливаем пакет chrony
+Eстанавливаем пакет chrony
 
 ```bash
-apt-get update
 apt-get install chrony
 ```
 
@@ -1096,32 +951,44 @@ systemctl restart chrony
 ```
 
 ### HQ-RTR
+Сначало создадим правило для порта 123 для подключения к NTP-серверу
 ```
-config
-ntp server 172.16.1.1
-ntp synchronize
-ctrl+d
-show ntp status
+ip/firewall/filter/add action=accept chain=input protocol=udp port=123
+```
+```
+system/ntp/client/servers/add address=172.16.1.1
+system/ntp/client/edit enabled
+```
+Прописываем в файле
+```
+yes
+```
+Сохраняем
+```
+ctrl+o
 ```
 
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
-```
 ### BR-RTR
+Сначало создадим правило для порта 123 для подключения к NTP-серверу
 ```
-config
-ntp server 172.16.2.1
-ntp synchronize
-ctrl+d
-show ntp status
+ip/firewall/filter/add action=accept chain=input protocol=udp port=123
 ```
-
-Cохраняем конфигурацию
 ```
-ctrl+z
-write memory
+system/ntp/client/servers/add address=172.16.2.1
+system/ntp/client/edit enabled
+```
+Прописываем в файле
+```
+yes
+```
+Сохраняем
+```
+ctrl+o
+```
+### HQ-CLI
+Cкачиваем службу systemd-timesyncd:
+```bash
+apt-get install systemd-timesyncd
 ```
 ### HQ-CLI и HQ-SRV
 Изменяем в конфиге: /etc/systemd/timesyncd.conf
@@ -1163,8 +1030,11 @@ timedatectl timesync-status
 * Рабочий каталог ansible должен располагаться в /etc/ansible 
 * Все указанные машины должны без предупреждений и ошибок отвечать pong на команду ping в ansible посланную с BR-SRV.
 
->[!WARNING]
-> Не во всех редакция/версиях EcoRouter есть ssh-сервер (как например в данном примере), по этому не указываем роутеры HQ-RTR и BR-RTR в файле инвентаря 
+### HQ-RTR и BR-RTR
+Перед началом запускаем ssh-сервер 
+```
+/ip service enable ssh
+```
 ### HQ-CLI
 Перед началом установим проверяем наличие ssh-сервера 
 ```bash
@@ -1172,16 +1042,28 @@ su -
 systemctl status sshd
 ```
 
-Если отсутствует, то устанавливаем 
-```bash
-apt-get update
-apt-get install openssh-server
-```
+>[!NOTE]
+>Если отсутствует, то устанавливаем
+>```bash
+> apt-get install openssh-server
+>```
+
+>[!Note]
+>Если не включен ```inactive (dead)```, то включаем
+>```
+> systemctl enable --now sshd
+>```
+
 ### BR-SRV
-Обновляем лист с репозиториями и устанавливаем пакет ansible
+Устанавливаем пакет ansible
 ```bash
-apt-get update
 apt-get install ansible
+```
+
+Устанавливаем плагины для работы с микротиком
+```
+ansible-galaxy collection install ansible.netcommon
+ansible-galaxy collection install community.routeros
 ```
 
 Редактируем файл hosts
@@ -1191,9 +1073,27 @@ nano /etc/ansible/hosts
 >[!TIP]
 >Указываем для HQ-SRV пользователя которого создавали в 3 задании 1 модуля,
 >для HQ-CLI пользователя который был создан при установке (в данном случае user:1)
+
 ```bash
-hq-srv ansible_host=sshuser@hq-srv ansible_password=P@ssw0rd ansible_port=2026
-hq-cli ansible_host=user@hq-cli ansible_password=1
+[RTR]
+hq-rtr ansible_host=hq-rtr
+br-rtr ansible_host=br-rtr
+[RTR:vars]
+ansible_connection=ansible.netcommon.network_cli
+ansible_network_os=community.routeros.routeros
+ansible_user=net_admin
+ansible_password=P@ssw0rd
+[SRV]
+hq-srv ansible_host=hq-srv
+[SRV:vars]
+ansible_user=sshuser
+ansible_password=P@ssw0rd
+ansible_port=2026
+[CLI]
+hq-cli ansible_host=hq-cli
+[CLI:vars]
+ansible_user=user
+ansible_password=1
 ```
 Сохраняем файл (ctrl+x, y, enter)
 
@@ -1215,23 +1115,23 @@ ansible all -m ping
 ```
 ## 6. Разверните веб приложение в docker на сервере BR-SRV:
 * Средствами docker должен создаваться стек контейнеров с веб приложением и базой данных
-* Используйте образы site_latestи mariadb_latest располагающиеся в директории docker в образе Additional.iso
+* Используйте образы site_latest и mariadb_latest располагающиеся в директории docker в образе Additional.iso
 * Основной контейнер testapp должен называться tespapp
 * Контейнер с базой данных должен называться db 
 * Импортируйте образы в docker, укажите в yaml файле параметры подключения к СУБД, имя БД - testdb, пользователь testс паролем P@ssw0rd, порт приложения 8080, при необходимости другие параметры
 * Приложение должно быть доступно для внешних подключений через порт 8080
 ### BR-SRV
 
-Обновляем репозитории и устанавливаем docker-compose-v2
+Обновляем репозитории и устанавливаем docker-compose
 ```bash
-apt-get update
-apt-get install docker-engine docker-compose-v2
+apt-get install docker-engine docker-compose
 ```
 Добавляем в автозагрузку и смотрим статус docker:
 ```bash
-systemctl enable –now docker
+systemctl enable -–now docker
 systemctl status docker
 ```
+Выключаем ВМ
 
 Подключаем [образ](https://disk.yandex.ru/d/0MGlkrp2B9nXDw) в VmWare workstation
 
@@ -1239,9 +1139,11 @@ systemctl status docker
 
 **Рисунок**
 
+Включаем ВМ
+
 Монтируем подключаемый образ:
 ```bash
-mount /dev/cdrom /media/ALTLinux
+mount /dev/sr0 /media/ALTLinux
 ```
 Просматриваем содержимое:
 ```bash
@@ -1301,7 +1203,7 @@ db:
     - db_data:/var/lib/mysql
 
 volumes:
-  db_data:
+ db_data:
 ```
 Сохраняем и выходим из файла (crtl+x, y, enter)
 
@@ -1348,15 +1250,19 @@ systemctl enable --now httpd2
 systemctl enable --now mariadb
 ```
 
+Выключаем ВМ
+
 Подключаем [образ](https://disk.yandex.ru/d/0MGlkrp2B9nXDw) в VmWare workstation
 
 <img width="702" height="414" alt="Pasted image 20251222113428" src="https://github.com/user-attachments/assets/30fca107-94eb-48f2-a443-00438defebc1" />
 
 **Рисунок**
 
+Включаем ВМ
+
 Монтируем подключаемый образ:
 ```bash
-mount /dev/cdrom /media/ALTLinux
+mount /dev/sr0 /media/ALTLinux
 ```
 Просматриваем содержимое:
 ```bash
@@ -1369,8 +1275,8 @@ ls -lah /media/ALTLinux
 
 Копируем содержимое папки web с диска в директорию /var/www/html:
 ```bash
-cp /media/web/index.php /var/www/html
-cp /media/web/logo.png /var/www/html
+cp /media/ALTLinux/web/index.php /var/www/html
+cp /media/ALTLinux/web/logo.png /var/www/html
 ```
 
 Редактируем файл index.php
@@ -1422,7 +1328,7 @@ exit
 ```
 Импортируем схему данных из файла dump.sql, из папки web
 ```bash
-mariadb -u web -pP@ssw0rd webdb < /media/web/dump.sql
+mariadb -u web -pP@ssw0rd webdb < /media/ALTLinux/web/dump.sql
 ```
 Снова заходим в консоль mariadb
 ```bash
@@ -1455,26 +1361,14 @@ systemctl enable --now httpd2
 
 ### HQ-RTR
 ```
-config
-ip nat source static tcp 192.168.1.30 2026 172.16.1.2 2026
-ip nat source static tcp 192.168.1.30 80 172.16.1.2 8080
-```
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+ip/firewall/nat/add chain=dstnat dst-address=172.16.1.2 protocol=tcp port=2026 action=dst-nat to-addresses=192.168.1.30 to-ports=2026
+ip/firewall/nat/add chain=dstnat dst-address=172.16.1.2 protocol=tcp port=8080 action=dst-nat to-addresses=192.168.1.30 to-ports=80
 ```
 
 ### BR-RTR
 ```
-config
-ip nat source static tcp 192.168.3.14 2026 172.16.2.2 2026
-ip nat source static tcp 192.168.3.14 8080 172.16.2.2 8080
-```
-Cохраняем конфигурацию
-```
-ctrl+z
-write memory
+ip/firewall/nat/add chain=dstnat dst-address=172.16.2.2 protocol=tcp port=2026 action=dst-nat to-addresses=192.168.3.14 to-ports=2026
+ip/firewall/nat/add chain=dstnat dst-address=172.16.2.2 protocol=tcp port=8080 action=dst-nat to-addresses=192.168.3.14 to-ports=8080
 ```
 
 ## 9. Настройте веб-сервер nginx как обратный прокси-сервер на ISP
@@ -1487,6 +1381,9 @@ nano /etc/nginx/nginx.conf
 ```
 Вносим свою конфигурацию
 ```bash
+events { 
+	worker_connections 1024;
+}
 http {
 	server {
 	    listen 172.16.1.1:80;
@@ -1524,12 +1421,12 @@ systemctl enable --now nginx
 
 Первая вкладка
 ```http
-web.au-team.irpo
+http://web.au-team.irpo
 ```
 
 Вторая вкладка
 ```http
-docker.au-team.irpo
+http://docker.au-team.irpo
 ```
 
 ## 10. На маршрутизаторе ISP настройте web-based аутентификацию:
@@ -1541,7 +1438,7 @@ docker.au-team.irpo
 ### ISP
 Устанавливаем пакет  
 ```bash
-apt install apache-utils
+apt install apache2
 ```
 Создаём пользователя для аутентификации с командой htpasswd и вводим дважды пароль **P@ssw0rd**
 ```bash
@@ -1563,7 +1460,7 @@ systemctl restart nginx
 ### HQ-CLI 
 Заходим в Chromium и вводим адрес
 ```http
-web.au-team.irpo
+http://web.au-team.irpo
 ```
 
 ## 11. Удобным способом установите приложение Яндекс Браузер на HQ-CLI 
@@ -1571,7 +1468,6 @@ web.au-team.irpo
 
 Устанавливаем Яндекс Браузер
 ```bash
-apt-get update
 apt-get install yandex-browser-stable
 ```
 
